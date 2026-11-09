@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Community Discussions
+    url: https://github.com/hit-scm/hit/discussions
+    about: Ask questions and discuss features with the Hit community.
+  - name: Official Documentation
+    url: https://hit-scm.com
+    about: Read user manuals and installer documentation at hit-scm.com.
+  - name: Security Vulnerabilities
+    url: https://github.com/hit-scm/hit/security/advisories/new
+    about: Report security issues privately.

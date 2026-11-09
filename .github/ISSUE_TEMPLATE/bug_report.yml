@@ -1,0 +1,77 @@
+name: Bug Report
+description: Report an issue or unexpected behavior in Hit.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue. Please provide reproduction details below so we can investigate promptly.
+
+  - type: input
+    id: version
+    attributes:
+      label: Hit Version
+      description: Run `hit --version`
+      placeholder: "hit 0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Target operating system
+      options:
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux (Ubuntu/Debian)
+        - Linux (Arch/Fedora/Other)
+        - Windows 11 / 10
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Concise summary of the unexpected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: Minimal sequence of commands to reproduce the issue.
+      placeholder: |
+        1. hit init test-repo
+        2. cd test-repo
+        3. hit status
+    validations:
+      required: true
+
+  - type: textarea
+    id: terminal_output
+    attributes:
+      label: Terminal Output
+      description: Complete terminal output including error messages and hints.
+      render: shell
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What was expected to happen instead.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues to verify this is not a duplicate.
+          required: true
+        - label: I verified that the problem is reproducible with the latest release.
+          required: false
