@@ -101,6 +101,26 @@ Hit operates seamlessly within existing development workflows and developer infr
 
 ---
 
+## Hit Desktop
+
+Hit includes a modern, ultra-fast graphical desktop application built with Tauri and React, engineered as a lightweight alternative to GitHub Desktop.
+
+- **Zero CLI Required**: Hit Desktop directly links the bare-metal Rust engine in-process — no separate Hit CLI installation is required.
+- **Visual Staging & Diffs**: High-resolution unified diff viewing with green insertion and red deletion highlights, selective file staging, and keyboard-first commit dock (`Cmd+Enter`).
+- **Interactive Commit Timeline**: Searchable commit history graph with author details, relative timestamps, and per-commit diff inspection.
+- **Multi-Provider Hub**: Manage accounts across GitHub, GitLab, Codeberg, and Bitbucket with browser OAuth device authorization.
+- **One-Step Sync & Branches**: Fast upstream synchronization, push/pull indicators, and instant branch switching.
+- **Integrated System Diagnostics**: Built-in Hit Doctor monitoring BLAKE3 SIMD hardware acceleration, Git compatibility layers, and repository health.
+
+```bash
+# Launch Hit Desktop in development mode
+cd desktop
+npm install
+npm run tauri dev
+```
+
+---
+
 ## Key Capabilities
 
 ```

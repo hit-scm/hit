@@ -4,6 +4,11 @@
 # Hit repository files
 .hit/
 
+# Desktop App
+desktop/node_modules/
+desktop/dist/
+desktop/src-tauri/target/
+
 # OS and Editor
 .DS_Store
 Thumbs.db
