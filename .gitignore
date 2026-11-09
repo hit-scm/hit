@@ -1,0 +1,16 @@
+/target
+**/*.rs.bk
+
+# Hit repository files
+.hit/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
