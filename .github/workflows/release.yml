@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.0)'
+        required: false
+        default: 'v0.1.0'
 
 permissions:
   contents: write
@@ -16,48 +22,90 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # --- Linux (glibc & static musl) ---
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: hit-x86_64-unknown-linux-gnu
-            asset_name: hit-${{ github.ref_name }}-x86_64-linux.tar.gz
+            asset_name: hit-x86_64-unknown-linux-gnu.tar.gz
+            use_cross: false
+
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            asset_name: hit-x86_64-unknown-linux-musl.tar.gz
+            use_cross: false
+            install_musl: true
+
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact_name: hit-aarch64-unknown-linux-gnu
-            asset_name: hit-${{ github.ref_name }}-aarch64-linux.tar.gz
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            artifact_name: hit-x86_64-apple-darwin
-            asset_name: hit-${{ github.ref_name }}-x86_64-macos.tar.gz
+            asset_name: hit-aarch64-unknown-linux-gnu.tar.gz
+            use_cross: true
+
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            asset_name: hit-aarch64-unknown-linux-musl.tar.gz
+            use_cross: true
+
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+            asset_name: hit-armv7-unknown-linux-gnueabihf.tar.gz
+            use_cross: true
+
+          # --- macOS (Apple Silicon & Intel) ---
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: hit-aarch64-apple-darwin
-            asset_name: hit-${{ github.ref_name }}-aarch64-macos.tar.gz
+            asset_name: hit-aarch64-apple-darwin.tar.gz
+            use_cross: false
+
+          - os: macos-13
+            target: x86_64-apple-darwin
+            asset_name: hit-x86_64-apple-darwin.tar.gz
+            use_cross: false
+
+          # --- Windows (x86_64, ARM64, i686) ---
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: hit-x86_64-pc-windows-msvc
-            asset_name: hit-${{ github.ref_name }}-x86_64-windows.zip
+            asset_name: hit-x86_64-pc-windows-msvc.zip
+            use_cross: false
+
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            asset_name: hit-aarch64-pc-windows-msvc.zip
+            use_cross: false
+
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+            asset_name: hit-i686-pc-windows-msvc.zip
+            use_cross: false
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Rust
+      - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install cross-compilation tools (Linux AArch64)
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
+      - name: Install musl-tools
+        if: matrix.install_musl == true
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
 
-      - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }}
+      - name: Install cross
+        if: matrix.use_cross == true
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Build binary (native or cross)
+        run: |
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            cross build --release --target ${{ matrix.target }}
+          else
+            cargo build --release --target ${{ matrix.target }}
+          fi
+        shell: bash
 
       - name: Package archive (Unix)
         if: matrix.os != 'windows-latest'
         run: |
-          mkdir dist
+          mkdir -p dist
           cp target/${{ matrix.target }}/release/hit dist/
           cp README.md LICENSE dist/
           tar -czvf ${{ matrix.asset_name }} -C dist .
@@ -67,18 +115,93 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          mkdir dist
+          mkdir -p dist
           cp target/${{ matrix.target }}/release/hit.exe dist/
           cp README.md LICENSE dist/
           7z a ${{ matrix.asset_name }} ./dist/*
           sha256sum ${{ matrix.asset_name }} > ${{ matrix.asset_name }}.sha256
 
-      - name: Upload release assets
-        uses: softprops/action-gh-release@v2
+      - name: Upload asset artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: |
+          name: ${{ matrix.target }}-artifact
+          path: |
             ${{ matrix.asset_name }}
             ${{ matrix.asset_name }}.sha256
+          retention-days: 1
+
+  # Create universal macOS binary by lipo-ing x86_64 and aarch64
+  build-macos-universal:
+    name: Build macOS Universal Binary
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+
+      - name: Build both architectures
+        run: |
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+
+      - name: Combine with lipo
+        run: |
+          mkdir -p dist-universal
+          lipo -create -output dist-universal/hit \
+            target/aarch64-apple-darwin/release/hit \
+            target/x86_64-apple-darwin/release/hit
+          lipo -info dist-universal/hit
+          cp README.md LICENSE dist-universal/
+          tar -czvf hit-universal-apple-darwin.tar.gz -C dist-universal .
+          shasum -a 256 hit-universal-apple-darwin.tar.gz > hit-universal-apple-darwin.tar.gz.sha256
+
+      - name: Upload universal artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: universal-macos-artifact
+          path: |
+            hit-universal-apple-darwin.tar.gz
+            hit-universal-apple-darwin.tar.gz.sha256
+          retention-days: 1
+
+  # Aggregate all checksums and publish the release
+  publish-release:
+    name: Publish Release & Checksums
+    needs: [build-release, build-macos-universal]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          merge-multiple: true
+
+      - name: Generate master SHA256SUMS.txt
+        run: |
+          cd all-artifacts
+          cat *.sha256 > SHA256SUMS.txt
+          echo "Generated master checksum file:"
+          cat SHA256SUMS.txt
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name || inputs.tag }}
+          name: Hit ${{ github.ref_name || inputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            all-artifacts/*.tar.gz
+            all-artifacts/*.zip
+            all-artifacts/*.sha256
+            all-artifacts/SHA256SUMS.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
