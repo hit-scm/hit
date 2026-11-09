@@ -1,4 +1,4 @@
-﻿# Hit Official Windows Installer
+# Hit Official Windows Installer
 # https://hit-scm.com
 #
 # Usage:
