@@ -307,3 +307,67 @@ pub struct SubmoduleArgs {
     #[arg(short, long)]
     pub branch: Option<String>,
 }
+
+#[derive(Args, Debug, Default)]
+pub struct AuthArgs {
+    #[command(subcommand)]
+    pub action: Option<AuthSubcommand>,
+}
+
+#[derive(clap::Subcommand, Debug)]
+pub enum AuthSubcommand {
+    #[command(alias = "signin")]
+    Login(AuthLoginArgs),
+
+    #[command(alias = "list")]
+    Status(AuthStatusArgs),
+
+    #[command(alias = "signout")]
+    Logout(AuthLogoutArgs),
+
+    Token(AuthTokenArgs),
+
+    Switch(AuthSwitchArgs),
+}
+
+#[derive(Args, Debug, Default)]
+pub struct AuthLoginArgs {
+    #[arg(short = 'H', long)]
+    pub host: Option<String>,
+
+    #[arg(short = 't', long)]
+    pub token: Option<String>,
+
+    #[arg(short = 'w', long)]
+    pub web: bool,
+
+    #[arg(short = 'p', long, default_value = "https")]
+    pub protocol: String,
+}
+
+#[derive(Args, Debug, Default)]
+pub struct AuthStatusArgs {}
+
+#[derive(Args, Debug, Default)]
+pub struct AuthLogoutArgs {
+    #[arg(short = 'H', long)]
+    pub host: Option<String>,
+
+    #[arg(short = 'u', long)]
+    pub user: Option<String>,
+}
+
+#[derive(Args, Debug, Default)]
+pub struct AuthTokenArgs {
+    #[arg(short = 'H', long)]
+    pub host: Option<String>,
+}
+
+#[derive(Args, Debug, Default)]
+pub struct AuthSwitchArgs {
+    #[arg(short = 'H', long)]
+    pub host: Option<String>,
+
+    #[arg(short = 'u', long)]
+    pub user: Option<String>,
+}

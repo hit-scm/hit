@@ -58,7 +58,27 @@ pub fn execute() -> HitResult<()> {
         );
     }
 
-    // 4. Check repository state
+    // 4. Authenticated hosts
+    let auth_state = crate::auth::AuthState::load();
+    if !auth_state.hosts.is_empty() {
+        let auth_summary: Vec<String> = auth_state
+            .list_hosts()
+            .iter()
+            .map(|(h, auth)| format!("{} ({})", h, auth.active_user))
+            .collect();
+        println!(
+            "  {} Authenticated hosts: {}",
+            "✔".bright_green(),
+            auth_summary.join(", ").cyan()
+        );
+    } else {
+        println!(
+            "  {} Authenticated hosts: None (run 'hit auth login')",
+            "ℹ".bright_blue()
+        );
+    }
+
+    // 5. Check repository state
     if GitBackend::is_in_repo() {
         if let Ok(rev) = GitBackend::run(&["rev-parse", "--show-toplevel"]) {
             println!(
@@ -106,7 +126,7 @@ pub fn execute() -> HitResult<()> {
         println!("  {} Repository: Outside repository", "ℹ".bright_blue());
     }
 
-    // 5. Check author identity
+    // 6. Check author identity
     let user_name = GitBackend::run(&["config", "user.name"])
         .map(|o| o.stdout.trim().to_string())
         .unwrap_or_default();

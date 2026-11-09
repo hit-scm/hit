@@ -380,3 +380,127 @@ fn test_submodule_management() {
 
     std::env::set_current_dir(orig_dir).unwrap();
 }
+
+#[test]
+fn test_auth_subsystem_and_providers() {
+    let _lock = CWD_LOCK.lock().unwrap();
+    use hit::auth::{AuthState, GitProvider};
+
+    // 1. Test Provider detection
+    let gh = GitProvider::from_host("https://github.com");
+    assert_eq!(gh, GitProvider::GitHub);
+    assert!(gh.supports_device_flow());
+    assert!(gh.token_creation_url().contains("description=Hit+CLI"));
+
+    let gl = GitProvider::from_host("gitlab.com");
+    assert_eq!(gl, GitProvider::GitLab("gitlab.com".to_string()));
+    assert!(gl.token_creation_url().contains("name=Hit+CLI"));
+    assert!(gl.token_creation_url().contains("scopes=api"));
+
+    let cb = GitProvider::from_host("codeberg.org");
+    assert_eq!(cb, GitProvider::Codeberg("codeberg.org".to_string()));
+    assert!(cb
+        .token_creation_url()
+        .contains("/user/settings/applications"));
+
+    let custom = GitProvider::from_host("git.internal.acme.com");
+    assert_eq!(
+        custom,
+        GitProvider::Custom("git.internal.acme.com".to_string())
+    );
+
+    // 2. Test AuthState persistence in isolated directory
+    let tmp = tempdir().unwrap();
+    let hit_dir = tmp.path().join(".hit");
+    std::env::set_var("HIT_DIR", &hit_dir);
+
+    let mut state = AuthState::default();
+
+    let account1 = AuthState::new_account(
+        "alice".to_string(),
+        Some("Alice Smith".to_string()),
+        Some("alice@example.com".to_string()),
+        "ghp_test_token_123".to_string(),
+        "https".to_string(),
+        vec!["repo".to_string(), "read:org".to_string()],
+    );
+    state.set_account("github.com", account1);
+
+    let account2 = AuthState::new_account(
+        "alice_work".to_string(),
+        Some("Alice Work".to_string()),
+        Some("alice@work.com".to_string()),
+        "ghp_work_token_456".to_string(),
+        "https".to_string(),
+        vec!["repo".to_string()],
+    );
+    state.set_account("github.com", account2);
+
+    assert_eq!(
+        state.get_active_token("github.com"),
+        Some("ghp_work_token_456".to_string())
+    );
+
+    // Switch active user back to alice
+    assert!(state.switch_active_user("github.com", "alice"));
+    assert_eq!(
+        state.get_active_token("github.com"),
+        Some("ghp_test_token_123".to_string())
+    );
+
+    // Save and reload
+    state.save().unwrap();
+    let loaded = AuthState::load();
+    assert_eq!(
+        loaded.get_active_token("github.com"),
+        Some("ghp_test_token_123".to_string())
+    );
+
+    let host_auth = loaded.hosts.get("github.com").unwrap();
+    assert_eq!(host_auth.users.len(), 2);
+    assert_eq!(host_auth.active_user, "alice");
+
+    // Remove user
+    let mut modified = loaded;
+    assert!(modified.remove_user("github.com", "alice"));
+    assert_eq!(
+        modified.get_active_token("github.com"),
+        Some("ghp_work_token_456".to_string())
+    );
+
+    std::env::remove_var("HIT_DIR");
+}
+
+#[test]
+fn test_credential_resolver_with_auth_state() {
+    let _lock = CWD_LOCK.lock().unwrap();
+    use hit::auth::AuthState;
+    use hit::core::credentials::CredentialResolver;
+
+    let tmp = tempdir().unwrap();
+    let hit_dir = tmp.path().join(".hit");
+    std::env::set_var("HIT_DIR", &hit_dir);
+
+    let mut state = AuthState::default();
+    let account = AuthState::new_account(
+        "bob".to_string(),
+        Some("Bob".to_string()),
+        Some("bob@gitlab.com".to_string()),
+        "glpat_secure_token_789".to_string(),
+        "https".to_string(),
+        vec!["api".to_string()],
+    );
+    state.set_account("gitlab.com", account);
+    state.save().unwrap();
+
+    // Verify CredentialResolver resolves token
+    assert_eq!(
+        CredentialResolver::get_token_for_host("https://gitlab.com"),
+        Some("glpat_secure_token_789".to_string())
+    );
+
+    let header = CredentialResolver::get_auth_header_for_host("gitlab.com").unwrap();
+    assert_eq!(header, "Bearer glpat_secure_token_789");
+
+    std::env::remove_var("HIT_DIR");
+}

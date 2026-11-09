@@ -168,6 +168,20 @@ hit config --global init.defaultBranch main
 hit config --global --list
 ```
 
+### 4. Guided Multi-Provider Authentication
+Authenticate with GitHub, GitLab, Codeberg, and Bitbucket in seconds. Hit initiates OAuth device code authorization or launches the browser to pre-configured token creation endpoints, verifies scopes via API, securely stores credentials (`0600`), and synchronizes the Git credential helper:
+
+```shell
+# Interactive guided authentication wizard
+hit auth login
+
+# Check active accounts across hosts
+hit auth status
+
+# Extract token for CI/CD or scripting subshells
+hit auth token --host github.com
+```
+
 ---
 
 ## Quickstart Guide
@@ -230,6 +244,7 @@ hit doctor
 | `hit show [object]` | Inspect commit, tag, tree, or blob | `hit show HEAD` |
 | `hit tag [name]` | Create lightweight or annotated tags | `hit tag v1.0.0` |
 | `hit submodule [action]` | Submodule management (`add`, `update`, `status`, `sync`) | `hit submodule add <url>` |
+| `hit auth [login\|status]` | Multi-provider authentication wizard (`github`, `gitlab`, etc.) | `hit auth login` |
 | `hit config [--global]` | Inspect or modify configuration | `hit config --global user.name "Alice"` |
 | `hit doctor` | Verify system, repository, and remote health | `hit doctor` |
 | `hit benchmark` | Benchmark machine hashing and compression | `hit benchmark` |

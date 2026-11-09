@@ -63,6 +63,9 @@ pub enum Commands {
     #[command(alias = "sub")]
     Submodule(SubmoduleArgs),
 
+    #[command(alias = "login")]
+    Auth(AuthArgs),
+
     Config(ConfigArgs),
 
     Blame(BlameArgs),

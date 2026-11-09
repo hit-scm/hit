@@ -1,3 +1,4 @@
+pub mod auth;
 pub mod cli;
 pub mod commands;
 pub mod core;
@@ -74,6 +75,7 @@ pub fn run() -> HitResult<()> {
             args.force,
             args.branch,
         ),
+        Commands::Auth(args) => commands::auth::execute(args),
         Commands::Config(args) => {
             commands::config::execute(args.key, args.value, args.global, args.list)
         }

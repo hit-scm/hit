@@ -1,4 +1,5 @@
 pub mod add;
+pub mod auth;
 pub mod benchmark;
 pub mod blame;
 pub mod branch;
