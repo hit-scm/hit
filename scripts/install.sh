@@ -59,7 +59,13 @@ esac
 
 case "$PLATFORM" in
   linux) TARGET="${TARGET_ARCH}-unknown-linux-gnu" ;;
-  macos) TARGET="${TARGET_ARCH}-apple-darwin" ;;
+  macos)
+    if [ "$TARGET_ARCH" != aarch64 ]; then
+      printf "%b\n" "${RED}HIT release binaries for macOS require Apple silicon.${RESET}"
+      exit 1
+    fi
+    TARGET="aarch64-apple-darwin"
+    ;;
 esac
 printf "%b\n" "Detected platform: ${BOLD}${TARGET}${RESET}"
 

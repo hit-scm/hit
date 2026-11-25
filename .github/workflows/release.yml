@@ -49,15 +49,10 @@ jobs:
             asset_name: hit-armv7-unknown-linux-gnueabihf.tar.gz
             use_cross: true
 
-          # --- macOS (Apple Silicon & Intel) ---
-          - os: macos-latest
+          # --- macOS (Apple Silicon) ---
+          - os: macos-15
             target: aarch64-apple-darwin
             asset_name: hit-aarch64-apple-darwin.tar.gz
-            use_cross: false
-
-          - os: macos-13
-            target: x86_64-apple-darwin
-            asset_name: hit-x86_64-apple-darwin.tar.gz
             use_cross: false
 
           # --- Windows (x86_64, ARM64, i686) ---
@@ -79,6 +74,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -135,57 +132,16 @@ jobs:
             ${{ matrix.asset_name }}.sha256
           retention-days: 1
 
-  # Create universal macOS binary by lipo-ing x86_64 and aarch64
-  build-macos-universal:
-    name: Build macOS Universal Binary
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin, x86_64-apple-darwin
-
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          targets: "aarch64-apple-darwin, x86_64-apple-darwin"
-
-      - name: Build both architectures
-        run: |
-          cargo build --release --target aarch64-apple-darwin
-          cargo build --release --target x86_64-apple-darwin
-
-      - name: Combine with lipo
-        run: |
-          mkdir -p dist-universal
-          lipo -create -output dist-universal/hit \
-            target/aarch64-apple-darwin/release/hit \
-            target/x86_64-apple-darwin/release/hit
-          lipo -info dist-universal/hit
-          cp README.md LICENSE dist-universal/
-          tar -czvf hit-universal-apple-darwin.tar.gz -C dist-universal .
-          shasum -a 256 hit-universal-apple-darwin.tar.gz > hit-universal-apple-darwin.tar.gz.sha256
-
-      - name: Upload universal artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: universal-macos-artifact
-          path: |
-            hit-universal-apple-darwin.tar.gz
-            hit-universal-apple-darwin.tar.gz.sha256
-          retention-days: 1
-
   # Aggregate all checksums and publish the release
   publish-release:
     name: Publish Release & Checksums
-    needs: [build-release, build-macos-universal]
+    needs: build-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
@@ -203,8 +159,8 @@ jobs:
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name || inputs.tag }}
-          name: Hit ${{ github.ref_name || inputs.tag }}
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          name: Hit ${{ inputs.tag || github.ref_name }}
           draft: false
           prerelease: false
           generate_release_notes: true
