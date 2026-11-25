@@ -4,8 +4,8 @@ contact_links:
     url: https://github.com/hit-scm/hit/discussions
     about: Ask questions and discuss features with the Hit community.
   - name: Official Documentation
-    url: https://hit-scm.com
-    about: Read user manuals and installer documentation at hit-scm.com.
+    url: https://github.com/hit-scm/hit/tree/master/docs
+    about: Read installation, usage, and troubleshooting guides.
   - name: Security Vulnerabilities
     url: https://github.com/hit-scm/hit/security/advisories/new
     about: Report security issues privately.

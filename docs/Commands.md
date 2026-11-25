@@ -33,4 +33,3 @@ Run `hit --help` to list commands, and `hit <command> --help` for current option
 | `hit doctor` | Verify system, repository, and remote health | `hit doctor` |
 | `hit benchmark` | Benchmark local hashing | `hit benchmark` |
 | `hit completions <shell>` | Generate shell completions (`zsh`, `bash`, `fish`) | `hit completions zsh > _hit` |
-

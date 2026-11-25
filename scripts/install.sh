@@ -20,9 +20,9 @@ printf "%b" "${BOLD}${CYAN}
    __    __   __  .___________.
   |  |  |  | |  | |           |
   |  |__|  | |  | \`---|  |----\`
-  |   __   | |  |     |  |     
-  |  |  |  | |  |     |  |     
-  |__|  |__| |__|     |__|     
+  |   __   | |  |     |  |
+  |  |  |  | |  |     |  |
+  |__|  |__| |__|     |__|
 ${RESET}"
 printf "%b\n" "${BOLD}Hit - High-Performance Source Control System${RESET}"
 printf "%b\n\n" "${DIM}https://github.com/hit-scm/hit/tree/master/docs${RESET}"
@@ -129,4 +129,3 @@ printf "%b\n" "Get started:"
 printf "%b\n" "  ${BOLD}hit init${RESET}"
 printf "%b\n" "  ${BOLD}hit --help${RESET}"
 printf "%b\n\n" "Documentation & guides: ${CYAN}https://github.com/hit-scm/hit/tree/master/docs${RESET}"
-
