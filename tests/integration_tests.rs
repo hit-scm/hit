@@ -59,7 +59,7 @@ fn test_commit_serialization() {
         "treehash123",
         vec!["parent1".to_string()],
         "Linus",
-        "linus@hit-scm.com",
+        "linus@example.com",
         1700000000,
         "Initial commit\n\nFull release notes.",
     );
@@ -69,7 +69,7 @@ fn test_commit_serialization() {
     assert_eq!(deserialized.tree, "treehash123");
     assert_eq!(deserialized.parents, vec!["parent1".to_string()]);
     assert_eq!(deserialized.author_name, "Linus");
-    assert_eq!(deserialized.author_email, "linus@hit-scm.com");
+    assert_eq!(deserialized.author_email, "linus@example.com");
     assert_eq!(deserialized.timestamp, 1700000000);
     assert_eq!(
         deserialized.message,
@@ -133,7 +133,7 @@ fn test_end_to_end_git_compatible_repo_lifecycle() {
 
     // Ensure user identity is set for commit test
     let _ = GitBackend::run(&["config", "user.name", "Hit Tester"]);
-    let _ = GitBackend::run(&["config", "user.email", "test@hit-scm.com"]);
+    let _ = GitBackend::run(&["config", "user.email", "test@example.com"]);
 
     // 2. Add files
     let file1 = repo_path.join("hello.txt");
@@ -325,7 +325,7 @@ fn test_submodule_management() {
     std::env::set_current_dir(&child_path).unwrap();
     hit::commands::init::execute(None, Some("main")).unwrap();
     let _ = GitBackend::run(&["config", "user.name", "Child Tester"]);
-    let _ = GitBackend::run(&["config", "user.email", "child@hit-scm.com"]);
+    let _ = GitBackend::run(&["config", "user.email", "child@example.com"]);
     fs::write(child_path.join("lib.rs"), "pub fn child() {}").unwrap();
     hit::commands::add::execute(vec!["lib.rs".to_string()]).unwrap();
     hit::commands::commit::execute(Some("feat: initial child lib".to_string()), false, false)
@@ -335,7 +335,7 @@ fn test_submodule_management() {
     std::env::set_current_dir(&parent_path).unwrap();
     hit::commands::init::execute(None, Some("main")).unwrap();
     let _ = GitBackend::run(&["config", "user.name", "Parent Tester"]);
-    let _ = GitBackend::run(&["config", "user.email", "parent@hit-scm.com"]);
+    let _ = GitBackend::run(&["config", "user.email", "parent@example.com"]);
     fs::write(parent_path.join("README.md"), "# Parent Repo").unwrap();
     hit::commands::add::execute(vec!["README.md".to_string()]).unwrap();
     hit::commands::commit::execute(

@@ -2,11 +2,11 @@
 name = "hit"
 version = "0.1.0"
 edition = "2021"
-authors = ["Hit Core Team <team@hit-scm.com>"]
+authors = ["Hit Core Team"]
 description = "A next-generation, blazingly fast source control system built for delightful developer experience."
 repository = "https://github.com/hit-scm/hit"
-homepage = "https://hit-scm.com"
-license = "MIT OR Apache-2.0"
+documentation = "https://github.com/hit-scm/hit/tree/master/docs"
+license = "MIT"
 keywords = ["vcs", "git", "source-control", "developer-tools", "fast"]
 categories = ["command-line-utilities", "development-tools::version-control"]
 readme = "README.md"

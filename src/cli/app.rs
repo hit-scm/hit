@@ -4,7 +4,7 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[command(
     name = "hit",
-    author = "Hit Core Team <team@hit-scm.com>",
+    author = "Hit Core Team",
     version,
     about = "A high-performance source control system built for speed, clarity, and reliability.",
     long_about = "Hit is a next-generation distributed version control system that is 100%\ncompatible with Git, GitHub, GitLab, and Codeberg, engineered for bare-metal\nspeed, clean modern coloring, and actionable diagnostics."

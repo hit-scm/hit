@@ -257,7 +257,7 @@ impl Repo {
             .user_email
             .or_else(|| std::env::var("HIT_AUTHOR_EMAIL").ok())
             .or_else(|| std::env::var("GIT_AUTHOR_EMAIL").ok())
-            .unwrap_or_else(|| "dev@hit-scm.com".to_string());
+            .unwrap_or_else(|| "dev@example.com".to_string());
 
         (name, email)
     }

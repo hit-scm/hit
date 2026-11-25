@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 # Hit Official Installer
-# https://hit-scm.com
+# https://github.com/hit-scm/hit/tree/master/docs
 #
 # Usage:
-#   curl -fsSL https://hit-scm.com/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/hit-scm/hit/master/scripts/install.sh | sh
 
 set -e
 
@@ -25,7 +25,7 @@ printf "%b" "${BOLD}${CYAN}
   |__|  |__| |__|     |__|     
 ${RESET}"
 printf "%b\n" "${BOLD}Hit - High-Performance Source Control System${RESET}"
-printf "%b\n\n" "${DIM}https://hit-scm.com${RESET}"
+printf "%b\n\n" "${DIM}https://github.com/hit-scm/hit/tree/master/docs${RESET}"
 
 # Detect OS and architecture
 OS="$(uname -s)"
@@ -57,7 +57,10 @@ case "$ARCH" in
     ;;
 esac
 
-TARGET="${TARGET_ARCH}-${PLATFORM}"
+case "$PLATFORM" in
+  linux) TARGET="${TARGET_ARCH}-unknown-linux-gnu" ;;
+  macos) TARGET="${TARGET_ARCH}-apple-darwin" ;;
+esac
 printf "%b\n" "Detected platform: ${BOLD}${TARGET}${RESET}"
 
 # Determine installation directory
@@ -71,6 +74,8 @@ if [ -z "$HIT_INSTALL_DIR" ]; then
 else
   INSTALL_DIR="$HIT_INSTALL_DIR"
 fi
+
+mkdir -p "$INSTALL_DIR"
 
 printf "%b\n" "Installing to: ${BOLD}${INSTALL_DIR}${RESET}"
 
@@ -123,5 +128,5 @@ esac
 printf "%b\n" "Get started:"
 printf "%b\n" "  ${BOLD}hit init${RESET}"
 printf "%b\n" "  ${BOLD}hit --help${RESET}"
-printf "%b\n\n" "Documentation & guides: ${CYAN}https://hit-scm.com${RESET}"
+printf "%b\n\n" "Documentation & guides: ${CYAN}https://github.com/hit-scm/hit/tree/master/docs${RESET}"
 

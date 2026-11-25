@@ -1,8 +1,8 @@
 # Hit Official Windows Installer
-# https://hit-scm.com
+# https://github.com/hit-scm/hit/tree/master/docs
 #
 # Usage:
-#   irm https://hit-scm.com/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/hit-scm/hit/master/scripts/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
@@ -16,7 +16,7 @@ Write-Host @"
 "@ -ForegroundColor Cyan
 
 Write-Host "Hit - High-Performance Source Control System" -ForegroundColor White
-Write-Host "https://hit-scm.com`n" -ForegroundColor DarkGray
+Write-Host "https://github.com/hit-scm/hit/tree/master/docs`n" -ForegroundColor DarkGray
 
 $Arch = if ([System.Environment]::Is64BitOperatingSystem) { "x86_64" } else { "x86" }
 if ($Arch -ne "x86_64") {
@@ -29,8 +29,8 @@ if (-not (Test-Path $InstallDir)) {
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 }
 
-$DownloadUrl = "https://github.com/hit-scm/hit/releases/latest/download/hit-x86_64-windows.zip"
-$ZipPath = Join-Path $env:TEMP "hit-x86_64-windows.zip"
+$DownloadUrl = "https://github.com/hit-scm/hit/releases/latest/download/hit-x86_64-pc-windows-msvc.zip"
+$ZipPath = Join-Path $env:TEMP "hit-x86_64-pc-windows-msvc.zip"
 $ExePath = Join-Path $InstallDir "hit.exe"
 
 # If local build exists, install directly
@@ -59,5 +59,5 @@ Write-Host "`n✔ Hit installed successfully at $ExePath" -ForegroundColor Green
 Write-Host "`nGet started:"
 Write-Host "  hit init" -ForegroundColor Yellow
 Write-Host "  hit --help" -ForegroundColor Yellow
-Write-Host "`nDocumentation & guides: https://hit-scm.com" -ForegroundColor Cyan
+Write-Host "`nDocumentation & guides: https://github.com/hit-scm/hit/tree/master/docs" -ForegroundColor Cyan
 

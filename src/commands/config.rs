@@ -95,7 +95,7 @@ pub fn execute(
             return Err(HitError::with_hint(
                 "Missing configuration key",
                 "Specify the configuration key you want to read or update.",
-                "Examples:\n  hit config --global user.name \"Alice Smith\"\n  hit config --global user.email \"alice@hit-scm.com\"\n  hit config --list",
+                "Examples:\n  hit config --global user.name \"Alice Smith\"\n  hit config --global user.email \"alice@example.com\"\n  hit config --list",
             ));
         }
     };
