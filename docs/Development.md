@@ -5,7 +5,7 @@ Use a current stable Rust toolchain and Git. From the repository root, run the s
 ```sh
 cargo fmt --all -- --check
 cargo clippy --all-targets --all-features -- -D warnings
-cargo test --locked --all-targets --all-features
+cargo test --all-targets --all-features
 ```
 
 Run `cargo run --release -- benchmark` to measure performance on your machine. Include the command, hardware, operating system, repository size, and sample count when reporting comparisons.

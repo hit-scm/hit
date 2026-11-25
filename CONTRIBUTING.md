@@ -7,10 +7,10 @@ Use [GitHub Issues](https://github.com/hit-scm/hit/issues) to report bugs and di
 Clone the repository with Git and use a current stable Rust toolchain.
 
 ```sh
-cargo build --locked
+cargo build
 cargo fmt --all -- --check
 cargo clippy --all-targets --all-features -- -D warnings
-cargo test --locked --all-targets --all-features
+cargo test --all-targets --all-features
 ```
 
 For desktop work, follow the [desktop setup](docs/Desktop.md). Test repository mutations in a disposable checkout and add regression coverage for behavior changes. Keep diagnostics specific and include a recovery step when one is available.

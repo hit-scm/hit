@@ -11,7 +11,7 @@ Review changes, stage files, and ship commits from the same repositories you alr
 Download the CLI archive for your platform from [GitHub Releases](https://github.com/hit-scm/hit/releases), or build from source with Rust and Cargo.
 
 ```sh
-cargo install --git https://github.com/hit-scm/hit.git --locked
+cargo install --git https://github.com/hit-scm/hit.git
 ```
 
 Open an existing Git repository and inspect what changed.

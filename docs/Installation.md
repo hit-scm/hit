@@ -22,7 +22,7 @@ The repository also includes [shell](https://github.com/hit-scm/hit/blob/master/
 With a current stable Rust toolchain and Git installed, run:
 
 ```sh
-cargo install --git https://github.com/hit-scm/hit.git --locked
+cargo install --git https://github.com/hit-scm/hit.git
 ```
 
 See [Quickstart](Quickstart.md) once `hit --version` succeeds.
