@@ -1,0 +1,53 @@
+name: Sync documentation to Wiki
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/**'
+      - 'scripts/sync-wiki.py'
+      - '.github/workflows/wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hit-wiki
+
+jobs:
+  publish:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Publish documentation pages
+        env:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN || github.token }}
+          WIKI_URL: ${{ github.server_url }}/${{ github.repository }}.wiki.git
+        run: |
+          set -euo pipefail
+          auth=$(printf 'x-access-token:%s' "$WIKI_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${GITHUB_SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="Authorization: Basic $auth"
+
+          wiki="$RUNNER_TEMP/hit-wiki"
+          if ! git clone "$WIKI_URL" "$wiki"; then
+            echo "::error::Enable Wikis and create its first page, then ensure the workflow token or WIKI_TOKEN can push."
+            exit 1
+          fi
+          python3 scripts/sync-wiki.py docs "$wiki"
+
+          git -C "$wiki" add -A
+          if git -C "$wiki" diff --cached --quiet; then
+            exit 0
+          fi
+          git -C "$wiki" -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "Sync HIT documentation"
+          git -C "$wiki" push
